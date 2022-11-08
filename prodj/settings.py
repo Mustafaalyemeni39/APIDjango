@@ -15,23 +15,26 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+from decouple import  config
 import os
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-elh4-02*!+x$0he)yvp$p-sv$-as%2wc39t7cb(8i!+qe@hyq='
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG')
+ALLOWED_HOSTS = ['127.0.0.1','.localhost', 'apifruit.herokuapp.com']
 
-ALLOWED_HOSTS = []
+# ['192.168.43.168','192.168.0.107','192.168.137.1']
 
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    
     'home.apps.HomeConfig',
     'api.apps.ApiConfig',
     'acount.apps.AcountConfig',
@@ -43,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     "rest_framework",
+    'rest_framework',
+    'corsheaders',
     
 ]
 
@@ -55,7 +59,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+        "https://example.com",
+        "https://sub.example.com",
+        "http://localhost:8080",
+        "http://127.0.0.1:9000"
+    ]
 
 ROOT_URLCONF = 'prodj.urls'
 
@@ -80,17 +93,22 @@ WSGI_APPLICATION = 'prodj.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
+from dj_database_url import parse as dburl
+default_dburl = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'fruitdb',
-        'USER': 'postgres',
-        'PASSWORD':'123123',
-        'HOST':'localhost',
-        'PORT':'5432',
-    }
-}
+                'default': config('DATABASE_URL', default=default_dburl, cast=dburl),
+            }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'fruitdb',
+#         'USER': 'postgres',
+#         'PASSWORD':'123123',
+#         'HOST':'localhost',
+#         'PORT':'5432',
+#     }
+# }
 
 
 # Password validation
@@ -128,7 +146,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'statics')
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
